@@ -6,17 +6,16 @@ class CFMigrationClient
 
   @cf_api_domain = nil
 
-	def initialize(client_id, client_secret, uaa_url, cf_api_domain)
-
+  def initialize(client_id, client_secret, uaa_url, cf_api_domain)
     @client = OAuth2::Client.new(
       client_id,
       client_secret,
       :site => uaa_url)
 
-		@token = @client.client_credentials.get_token;
+    @token = @client.client_credentials.get_token;
     @cf_api_domain = cf_api_domain
 
-	end
+  end
 
   def api_url
 
