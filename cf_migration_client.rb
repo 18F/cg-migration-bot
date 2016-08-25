@@ -86,12 +86,6 @@ class CFMigrationClient
 
   end
 
-  def delete_organization_quota_definition(quota_definition_guid)
-
-    response = @token.delete("#{api_url}/quota_definitions/#{quota_definition_guid}")
-
-  end
-
   def get_organization_roles(org_guid)
 
     response = @token.get("#{api_url}/organizations/#{org_guid}/user_roles")
@@ -102,7 +96,7 @@ class CFMigrationClient
   def get_users
 
     #todo - do we need to worry about paging?
-    response = @token.get("#{api_url}/users?order-direction=asc")
+    response = @token.get("#{api_url}/users?order-direction=desc")
     users = response.parsed["resources"];
 
   end
