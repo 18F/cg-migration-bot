@@ -24,6 +24,12 @@ $stdout.sync = true
 
 @last_user_date = nil
 
+def message(message)
+
+  puts message
+
+end
+
 def migrate_org(source_org)
 
 # create a new org quota based on the exising org quota in the source CF instance
@@ -31,6 +37,7 @@ def migrate_org(source_org)
   source_quota = @cf_source_client.get_quota_definition(source_org['entity']['quota_definition_guid'])
   destination_quota = @cf_destination_client.get_quota_definition_by_name(source_quota['entity']['name'])
   if destination_quota == nil
+    message("Creating org quota for #{source_org['entity']['name']}")
     destination_quota = @cf_destination_client.create_organization_quota_definition(source_quota['entity'])
   end
   destination_org = @cf_destination_client.create_organization(source_org['entity']['name'], destination_quota['metadata']['guid'])
@@ -43,6 +50,7 @@ def migrate_org_roles(source_org, source_user, destination_org, destination_user
   ['auditor', 'manager', 'billing_manager'].each do |role|
     if @cf_source_client.user_has_organization_role?(source_user['metadata']['guid'], source_org['metadata']['guid'], role)
       #todo - check to make sure they don't have role in destination already
+      message("Associating user #{source_user['entity']['username']} with #{role} role in org #{source_org['entity']['name']}")
       @cf_destination_client.associate_user_role_with_organization(destination_user['metadata']['guid'], destination_org['metadata']['guid'], role)
     end
   end
@@ -51,6 +59,7 @@ end
 
 def migrate_org_space(source_space, destination_org)
 
+  message("Creating space #{source_space['entity']['name']} in org #{destination_org['entity']['name']}")
   space = @cf_destination_client.create_space(source_space['entity']['name'], source_space['entity']['allow_ssh'], destination_org['metadata']['guid'])
 
 end
@@ -62,6 +71,7 @@ def migrate_space_roles(source_space, source_user, destination_space, destinatio
     if @cf_source_client.user_has_space_role?(source_user['metadata']['guid'], source_space['metadata']['guid'], role)
       #todo - should check to see if they already have role in space first, but cf doesn't seem to care
       # if you associate it twice
+      message("Associating user #{source_user['entity']['username']} with #{role} role in space #{destination_space['entity']['name']}")
       @cf_destination_client.associate_user_role_with_space(destination_user['metadata']['guid'], destination_space['metadata']['guid'], role)
     end
   end
@@ -73,7 +83,7 @@ def migrate_user_assets(destination_user)
 
   source_user = @cf_source_client.get_user_by_username(destination_user['entity']['username'])
   if source_user == nil
-    puts "Could not find user #{destination_user['entity']['username']} in source CF"
+    message("Could not find user #{destination_user['entity']['username']} in source CF")
     return
   end
 
@@ -138,7 +148,7 @@ def migrate_users
 
 end
 
-while true
+while false
   puts "Looking for new users"
   migrate_users
   puts @last_user_date
