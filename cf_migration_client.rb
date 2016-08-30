@@ -255,18 +255,19 @@ class CFMigrationClient
 
   def get_quota_definition_by_name(quota_definition_name)
 
-    result = false
+    result = nil
     page = 1
     results_per_page = 100
     more_results = true
 
-    while result == false && more_results
+    while result == nil && more_results
       response = @token.get("#{api_url}/quota_definitions?results-per-page=#{results_per_page}&page=#{page}")
       if !response.parsed['next_url']
         more_results = false
       end
 
       response.parsed['resources'].each do |quota_definition|
+        puts "checking #{quota_definition['entity']['name']} against #{quota_definition_name}"
         if quota_definition['entity']['name'] == quota_definition_name
           result = quota_definition
           break
