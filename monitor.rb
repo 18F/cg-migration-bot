@@ -33,6 +33,7 @@ def migrate_org(source_org)
     message("Creating org quota for #{source_org['entity']['name']}")
     destination_quota = @cf_destination_client.create_organization_quota_definition(source_quota['entity'])
   end
+  message("Creating org #{source_org['entity']['name']}")
   destination_org = @cf_destination_client.create_organization(source_org['entity']['name'], destination_quota['metadata']['guid'])
 
 end
