@@ -1,5 +1,0 @@
----
-inherit: manifest.yml
-name: migration-bot-staging
-env:
-  DO_SLACK: false
