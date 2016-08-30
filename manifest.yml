@@ -7,4 +7,3 @@ applications:
   health-check-type: none
 env:
   SLEEP_TIMEOUT: 30
-  DO_SLACK: true
