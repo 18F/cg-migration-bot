@@ -1,16 +1,9 @@
 require_relative './cf_migration_client'
 require_relative './monitor_helper'
-require 'slack-notifier'
 
 include MonitorHelper
 
 $stdout.sync = true
-
-#todo what about security groups
-
-@notifier = Slack::Notifier.new ENV["SLACK_HOOK"],
-              channel: "#cloud-gov",
-              username: "sandboxbot"
 
 @cf_source_client = CFMigrationClient.new(ENV["SOURCE_CLIENT_ID"],
   ENV["SOURCE_CLIENT_SECRET"],
@@ -133,12 +126,12 @@ def migrate_users
   users = @cf_destination_client.get_users
   users.each do |destination_user|
 
-    if last_user_date.nil? || last_user_date < user["metadata"]["created_at"]
-      last_user_date = user["metadata"]["created_at"]
+    if last_user_date.nil? || last_user_date < destination_user["metadata"]["created_at"]
+      last_user_date = destination_user["metadata"]["created_at"]
     end
 
     #break out of processing if we already processed this user in previous run
-    break if @last_user_date && @last_user_date >= user["metadata"]["created_at"]
+    break if @last_user_date && @last_user_date >= destination_user["metadata"]["created_at"]
 
     migrate_user_assets(destination_user)
 
@@ -148,9 +141,12 @@ def migrate_users
 
 end
 
-while false
-  puts "Looking for new users"
+while true
+  if @last_user_date
+    message("Looking for users added after #{@last_user_date}")
+  else
+    message("Looking for new users")
+  end
   migrate_users
-  puts @last_user_date
   sleep(ENV["SLEEP_TIMEOUT"].to_i)
 end
