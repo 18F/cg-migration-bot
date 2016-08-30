@@ -1,16 +1,9 @@
 require_relative './cf_migration_client'
 require_relative './monitor_helper'
-require 'slack-notifier'
 
 include MonitorHelper
 
 $stdout.sync = true
-
-#todo what about security groups
-
-@notifier = Slack::Notifier.new ENV["SLACK_HOOK"],
-              channel: "#cloud-gov",
-              username: "sandboxbot"
 
 @cf_source_client = CFMigrationClient.new(ENV["SOURCE_CLIENT_ID"],
   ENV["SOURCE_CLIENT_SECRET"],
