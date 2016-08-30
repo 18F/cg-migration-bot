@@ -29,8 +29,9 @@ def migrate_org(source_org)
 
   source_quota = @cf_source_client.get_quota_definition(source_org['entity']['quota_definition_guid'])
   destination_quota = @cf_destination_client.get_quota_definition_by_name(source_quota['entity']['name'])
+
   if destination_quota == nil
-    message("Creating org quota for #{source_org['entity']['name']}")
+    message("Creating org quota named #{source_quota['entity']['name']} for org #{source_org['entity']['name']}")
     destination_quota = @cf_destination_client.create_organization_quota_definition(source_quota['entity'])
   end
   message("Creating org #{source_org['entity']['name']}")
@@ -80,6 +81,8 @@ def migrate_user_assets(destination_user)
     message("Could not find user #{destination_user['entity']['username']} in source CF")
     return
   end
+
+  message("Migrating assets for user #{source_user['entity']['username']}")
 
   # find all the orgs this user belongs to in the source CF instance
   source_orgs = @cf_source_client.get_user_organizations(source_user['metadata']['guid'])
