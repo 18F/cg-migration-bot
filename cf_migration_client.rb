@@ -241,8 +241,10 @@ class CFMigrationClient
       allow_ssh: allow_ssh,
     }
 
-    sr = @token.post("#{api_url}/spaces",
+    response = @token.post("#{api_url}/spaces",
         body: req.to_json)
+
+    space = response.parsed
 
   end
 

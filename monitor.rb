@@ -57,16 +57,17 @@ def migrate_org_space(source_space, destination_org)
   message("Creating space #{source_space['entity']['name']} in org #{destination_org['entity']['name']}")
   space = @cf_destination_client.create_space(source_space['entity']['name'], source_space['entity']['allow_ssh'], destination_org['metadata']['guid'])
 
+
 end
 
-def migrate_space_roles(source_space, source_user, destination_space, destination_user)
+def migrate_space_roles(source_space, source_user, destination_space, destination_user, destination_org)
 
   #re-create org roles in destination CF instance
   ['auditor', 'developer', 'manager'].each do |role|
     if @cf_source_client.user_has_space_role?(source_user['metadata']['guid'], source_space['metadata']['guid'], role)
       #todo - should check to see if they already have role in space first, but cf doesn't seem to care
       # if you associate it twice
-      message("Associating user #{source_user['entity']['username']} with #{role} role in space #{destination_space['entity']['name']}")
+      message("Associating user #{source_user['entity']['username']} with #{role} role in space #{destination_space['entity']['name']} in org #{destination_org['entity']['name']} ")
       @cf_destination_client.associate_user_role_with_space(destination_user['metadata']['guid'], destination_space['metadata']['guid'], role)
     end
   end
@@ -111,11 +112,11 @@ def migrate_user_assets(destination_user)
     source_spaces.each do |source_space|
       destination_space = @cf_destination_client.get_organization_space_by_name(destination_org['metadata']['guid'], source_space['entity']['name'])
       if destination_space == nil
-        migrate_org_space(source_space, destination_org)
+        destination_space = migrate_org_space(source_space, destination_org)
       end
 
       # migrate any space roles for this user
-      migrate_space_roles(source_space, source_user, destination_space, destination_user)
+      migrate_space_roles(source_space, source_user, destination_space, destination_user, destination_org)
 
     end
   end
@@ -151,6 +152,8 @@ while true
   else
     message("Looking for new users")
   end
+
   migrate_users
   sleep(ENV["SLEEP_TIMEOUT"].to_i)
+
 end
