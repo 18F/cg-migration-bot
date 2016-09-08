@@ -54,12 +54,10 @@ class CFMigrationClient
 
     #todo - do we need to worry about paging?
     space = nil
-    response = @token.get("#{api_url}/organizations/#{org_guid}/spaces")
-    response.parsed['resources'].each do |org_space|
-      if org_space['entity']['name'] = name
-        space = org_space
-        break
-      end
+    response = @token.get("#{api_url}/organizations/#{org_guid}/spaces?q=name:#{name}")
+
+    if response.parsed["total_results"] == 1
+      space = response.parsed['resources'][0]
     end
 
     return space
