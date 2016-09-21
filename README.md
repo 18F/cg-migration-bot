@@ -1,4 +1,5 @@
 # cg-migration-bot
+[![Code Climate](https://codeclimate.com/github/18F/cg-migration-bot/badges/gpa.svg)](https://codeclimate.com/github/18F/cg-migration-bot)
 
 Monitor CF GovCloud controller users and migrate any associates orgs / spaces / roles.
 
